@@ -3,6 +3,12 @@ body {
   overflow: hidden;
   background: radial-gradient(#000015, #000);
 }
-canvas {
-  display: block;
+/* App.css */
+
+.canvas-container {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
 }

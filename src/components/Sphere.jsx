@@ -1,81 +1,81 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import vertexShader from '../shaders/vertexShader.glsl';
 import fragmentShader from '../shaders/fragmentShader.glsl';
 
-// Functional component for the Sphere
 const Sphere = () => {
-  // Reference to the sphere mesh
-  const sphereRef = useRef();
-  
-  // Loading the texture image for the sphere
-  const texture = useLoader(TextureLoader, '/earth.png');
+  const sphereRef = useRef(); // Reference to the sphere object
+  const texture = useLoader(TextureLoader, '/earth.png'); // Load texture for the globe
 
-  // State for tracking whether the sphere is being dragged
+  // State to track dragging and last mouse position
   const [dragging, setDragging] = useState(false);
-
-  // State for storing the last mouse position when dragging
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
 
-  // Rotation speed of the sphere when not being dragged
-  const rotationSpeed = 0.01;
+  const rotationSpeed = 0.005; // Auto-rotation speed when not dragging
 
-  // useFrame hook is used to update the sphere's rotation on each frame
+  // Memoized uniforms to pass texture to shader material
+  const uniforms = useMemo(() => ({
+    globeTexture: { value: texture },
+  }), [texture]);
+
+  // Rotate the sphere automatically when not dragging
   useFrame(() => {
-    // Rotate the sphere if it is not being dragged
     if (!dragging) {
       sphereRef.current.rotation.y += rotationSpeed;
     }
   });
 
-  // Function to handle mouse down (start dragging)
+  // Handle mouse press (start dragging)
   const handlePointerDown = (event) => {
-    setDragging(true); // Set dragging state to true
-    setLastMousePos({ x: event.clientX, y: event.clientY }); // Store the current mouse position
+    setDragging(true);
+    setLastMousePos({ x: event.clientX, y: event.clientY });
+
+    // Add event listeners to track mouse movement and release
+    window.addEventListener("mousemove", handlePointerMove);
+    window.addEventListener("mouseup", handlePointerUp);
   };
 
-  // Function to handle mouse move (while dragging)
+  // Handle mouse movement to rotate the sphere
   const handlePointerMove = (event) => {
     if (dragging) {
-      // Calculate the difference in mouse position since the last movement
-      const deltaX = event.clientX - lastMousePos.x;
-      const deltaY = event.clientY - lastMousePos.y;
+      // Calculate the difference in mouse movement
+      const deltaX = (event.clientX - lastMousePos.x) * 0.005; // Adjust for smooth rotation
+      const deltaY = (event.clientY - lastMousePos.y) * 0.005;
 
-      // Update the sphere's rotation based on the mouse movement
-      sphereRef.current.rotation.y += deltaX * 0.01;
-      sphereRef.current.rotation.x += deltaY * 0.01;
+      // Apply rotation to the sphere
+      sphereRef.current.rotation.y += deltaX; // Rotate left/right
+      sphereRef.current.rotation.x += deltaY; // Rotate up/down
 
-      // Update the last mouse position to the current one
+      // Store the new mouse position
       setLastMousePos({ x: event.clientX, y: event.clientY });
     }
   };
 
-  // Function to handle mouse up (stop dragging)
+  // Handle mouse release (stop dragging)
   const handlePointerUp = () => {
-    setDragging(false); // Set dragging state to false when the mouse is released
+    setDragging(false);
+
+    // Remove event listeners to prevent memory leaks
+    window.removeEventListener("mousemove", handlePointerMove);
+    window.removeEventListener("mouseup", handlePointerUp);
   };
 
   return (
     <mesh
-      ref={sphereRef} // Reference to the mesh for direct manipulation
-      scale={[7, 7, 7]} // Scale the sphere 7 times its original size in all axes
-      onPointerDown={handlePointerDown} // Trigger when the mouse button is pressed
-      onPointerMove={handlePointerMove} // Trigger when the mouse is moving
-      onPointerUp={handlePointerUp} // Trigger when the mouse button is released
-      onPointerOut={handlePointerUp} // Ensure drag stops when pointer leaves the sphere
+      ref={sphereRef}
+      scale={[8, 8, 8]} // Increased size for better visibility
+      onPointerDown={handlePointerDown} // Attach pointer down event to start dragging
     >
-      <sphereGeometry args={[1, 64, 64]} /> {/* Create a sphere geometry with a radius of 1 and 64 segments */}
-      
-      {/* Shader material with a custom vertex and fragment shader */}
+      <sphereGeometry args={[1, 64, 64]} />
       <shaderMaterial
-        uniforms={{ globeTexture: { value: texture } }} // Pass the texture as a uniform to the shader
-        vertexShader={vertexShader} // Use the custom vertex shader
-        fragmentShader={fragmentShader} // Use the custom fragment shader
+        uniforms={uniforms}
+        vertexShader={vertexShader}
+        fragmentShader={fragmentShader}
       />
     </mesh>
   );
 };
 
-export default Sphere; // Export the Sphere component for use in other parts of the app
+export default Sphere;

@@ -6,11 +6,16 @@ import './App.css';
 
 export default function App() {
   return (
-    <Canvas camera={{ position: [0, 0, 5] }} gl={{ antialias: true }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[2, 2, 2]} />
-      <Sphere />
-      <Stars />
-    </Canvas>
+    <div className="canvas-container">
+      <Canvas camera={{ position: [0, 0, 15] }} gl={{ antialias: true }}>
+        {/* Lights for better visibility */}
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[2, 2, 2]} />
+
+        {/* 3D Objects */}
+        <Sphere />
+        <Stars />
+      </Canvas>
+    </div>
   );
 }
