@@ -7,14 +7,16 @@ import './App.css';
 export default function App() {
   return (
     <div className="canvas-container">
-      <Canvas camera={{ position: [0, 0, 15] }} gl={{ antialias: true }}>
-        {/* Lights for better visibility */}
+      <Canvas camera={{ position: [0, 0, 9] }} gl={{ antialias: true }}>
+        {/* Lighting */}
         <ambientLight intensity={0.5} />
         <directionalLight position={[2, 2, 2]} />
 
-        {/* 3D Objects */}
-        <Sphere />
+        {/* Stars should be in the background */}
         <Stars />
+
+        {/* Sphere should be in front */}
+        <Sphere />
       </Canvas>
     </div>
   );

@@ -1,9 +1,10 @@
-body {
-  margin: 0;
-  overflow: hidden;
-  background: radial-gradient(#000015, #000);
-}
 /* App.css */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: black;
+}
 
 .canvas-container {
   width: 100vw;
